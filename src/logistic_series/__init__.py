@@ -1,8 +1,15 @@
+#!/usr/bin/env python3
+"""
+Starts a serie generation for logistic series
+"""
 import sys
 import logging
 import argparse
+from collections import OrderedDict
 
-logging.basicConfig(level=logging.DEBUG)
+import numpy as np
+from matplotlib import pyplot as plt
+
 
 
 def main(*args):
@@ -13,10 +20,10 @@ def main(*args):
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--start', type=float, help='Start value', action='store', dest='start_value',
-                        default=0.0)
+                        default=0.1)
     parser.add_argument('-e', '--end', type=float, help='End value', action='store', dest='end_value', default=10.0)
     parser.add_argument('-i', '--interval', type=float, help='Calculation interval', action='store', dest='interval',
-                        default=0.01)
+                        default=0.1)
 
     params = parser.parse_args(*args)
     logging.debug('main() params = %s' % str(params))
@@ -25,8 +32,38 @@ def main(*args):
     end_value = params.end_value
     interval = params.interval
 
-    serie = LogisticSerie(start_value=start_value, end_value=end_value, interval=interval)
+    series = LogisticSerie(start_value=start_value, end_value=end_value, interval=interval)
+    colors = ['#003366', 'r', '0.75', 'g']
 
+    count = 0
+    f, axarr = plt.subplots(2, 2)
+    for x0_val in series.x0_list:
+        generated_series = series.generate_series(x0=x0_val)
+        logging.debug('len(generated_series) = %d', len(generated_series))
+
+        logging.debug('[count // 2, count % 2] = [%s, %s]', count // 2, count % 2)
+
+        cur_plt = axarr[count // 2, count % 2]
+        cur_plt.set_title("Avec X0 = %s" % x0_val)
+        cur_plt.axis([0.0, 4.0, 0.0, 1.0])
+
+        output = OrderedDict()
+        for s in generated_series:
+            for data in s:
+                i = data[0]
+                if i not in output:
+                    output[i] = []
+                output[i].append(data[1])
+        logging.debug(output)
+
+        del output[0]
+        for key, data in output.items():
+            logging.debug("key = %s / data = %s", key, data)
+            for item in data:
+                cur_plt.plot(item[0], item[1], '+', c=colors[count])
+        count += 1
+
+    plt.show()
     return 0
 
 
@@ -34,9 +71,13 @@ class LogisticSerie(object):
     """
     Numeric logistic serie
     """
-    start_value = 0.0
-    end_value = 10.0
+    start_value = 0.01
+    end_value = 4.0
     interval = 0.01
+
+    x0_list = (0.2, 0.4, 0.6, 0.8)
+
+    initialized = False
 
     def __init__(self, **kwargs):
         if 'start_value' in kwargs:
@@ -48,6 +89,20 @@ class LogisticSerie(object):
 
         logging.debug('LogisticSerie() self.start_value = %s / self.end_value = %s / self.interval = %s',
                       self.start_value, self.end_value, self.interval)
+
+    def generate_serie(self, k, x0=0.2, count=50):
+        output = []
+        x = x0
+        for i in range(count):
+            x = x * k * (1 - x)
+            output.append((i, (k, x)))
+        return output
+
+    def generate_series(self, x0, start_k=start_value, end_k=end_value, interval=interval):
+        output = []
+        for k in np.arange(start_k, end_k, interval):
+            output.append(self.generate_serie(k, x0))
+        return output
 
 
 if __name__ == '__main__':
