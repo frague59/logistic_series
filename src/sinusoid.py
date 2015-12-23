@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""
+Simple tests for Tk plot display
+"""
 import sys
 import logging
 import math
