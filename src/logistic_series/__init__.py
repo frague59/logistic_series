@@ -37,7 +37,7 @@ def main(*args):
     colors = ['#003366', 'r', '0.25', 'g']
 
     count = 0
-    f, axarr = plt.subplots(2, 2)
+    f, axarr = plt.subplots(3, 3)
     count_points = 0
     for x0_val in series.x0_list:
         generated_series = series.generate_series(x0=x0_val)
@@ -45,7 +45,7 @@ def main(*args):
 
         logging.debug('[count // 2, count % 2] = [%s, %s]', count // 2, count % 2)
 
-        cur_plt = axarr[count // 2, count % 2]
+        cur_plt = axarr[count // 3, count % 3]
         cur_plt.set_title("Avec X0 = %s" % x0_val)
         cur_plt.axis([0.0, 4.0, 0.0, 1.0])
 
@@ -54,23 +54,19 @@ def main(*args):
             for data in s:
                 i = data[0]
                 if i not in output:
-                    output[i] = []
-                output[i].append(data[1])
-        logging.debug(output)
+                    output[i] = ([], [])
+                output[i][0].append(data[1][0])
+                output[i][1].append(data[1][1])
 
         del output[0]
         for key, data in output.items():
             logging.debug("key = %s / data = %s", key, data)
-            for item in data:
-                cur_plt.scatter(item[0], item[1], s=0.5, marker='.', c=colors[count])
-                count_points += 1
-                if count_points % 1000 == 0:
-                    logging.info('%s points added.', count_points)
+            cur_plt.scatter(data[0], data[1], s=0.5, marker='.', c=colors[count % 3])
         logging.info('Total count of points = %s', count_points)
         plt.pause(0.2)
         count += 1
 
-    plt.show()
+    # plt.show()
     input('Press Enter key to stop...')
     return 0
 
@@ -83,7 +79,7 @@ class LogisticSerie(object):
     end_value = 4.0
     interval = 0.01
 
-    x0_list = (0.2, 0.4, 0.6, 0.8)
+    x0_list = list(np.arange(0.1, 1, 0.1))
 
     initialized = False
 
