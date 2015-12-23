@@ -10,6 +10,7 @@ from collections import OrderedDict
 import numpy as np
 from matplotlib import pyplot as plt
 
+logging.basicConfig(level=logging.INFO)
 
 
 def main(*args):
@@ -33,13 +34,14 @@ def main(*args):
     interval = params.interval
 
     series = LogisticSerie(start_value=start_value, end_value=end_value, interval=interval)
-    colors = ['#003366', 'r', '0.75', 'g']
+    colors = ['#003366', 'r', '0.25', 'g']
 
     count = 0
     f, axarr = plt.subplots(2, 2)
+    count_points = 0
     for x0_val in series.x0_list:
         generated_series = series.generate_series(x0=x0_val)
-        logging.debug('len(generated_series) = %d', len(generated_series))
+        logging.info('Adding serie for x0 = %s / len(generated_series) = %d', x0_val, len(generated_series))
 
         logging.debug('[count // 2, count % 2] = [%s, %s]', count // 2, count % 2)
 
@@ -60,10 +62,16 @@ def main(*args):
         for key, data in output.items():
             logging.debug("key = %s / data = %s", key, data)
             for item in data:
-                cur_plt.plot(item[0], item[1], '+', c=colors[count])
+                cur_plt.scatter(item[0], item[1], s=0.5, marker='.', c=colors[count])
+                count_points += 1
+                if count_points % 1000 == 0:
+                    logging.info('%s points added.', count_points)
+        logging.info('Total count of points = %s', count_points)
+        plt.pause(0.2)
         count += 1
 
     plt.show()
+    input('Press Enter key to stop...')
     return 0
 
 
@@ -90,7 +98,8 @@ class LogisticSerie(object):
         logging.debug('LogisticSerie() self.start_value = %s / self.end_value = %s / self.interval = %s',
                       self.start_value, self.end_value, self.interval)
 
-    def generate_serie(self, k, x0=0.2, count=50):
+    @staticmethod
+    def generate_serie(k, x0=0.2, count=50):
         output = []
         x = x0
         for i in range(count):
