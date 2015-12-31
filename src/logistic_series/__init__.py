@@ -40,15 +40,21 @@ def main(*args):
     f, axarr = plt.subplots(3, 3)
     count_points = 0
     for x0_val in series.x0_list:
+        # Build series
         generated_series = series.generate_series(x0=x0_val)
         logging.info('Adding serie for x0 = %s / len(generated_series) = %d', x0_val, len(generated_series))
-
         logging.debug('[count // 2, count % 2] = [%s, %s]', count // 2, count % 2)
 
+        # Plot initialization
         cur_plt = axarr[count // 3, count % 3]
         cur_plt.set_title("Avec X0 = %s" % x0_val)
         cur_plt.axis([0.0, 4.0, 0.0, 1.0])
+        for val in np.arange(0, 1.0, 0.2):
+            cur_plt.axhline(val, color='b')
+        for val in range(4):
+            cur_plt.axvline(val, color='b')
 
+        # Zip series as (x0, x1... xn), (y0, y1...yn)
         output = OrderedDict()
         for s in generated_series:
             for data in s:
@@ -58,17 +64,23 @@ def main(*args):
                 output[i][0].append(data[1][0])
                 output[i][1].append(data[1][1])
 
+        # Remove first (straight) serie
         del output[0]
+
+        # Adds dots on plot
         for key, data in output.items():
             logging.debug("key = %s / data = %s", key, data)
-            cur_plt.scatter(data[0], data[1], s=0.5, marker='.', c=colors[count % 3])
+            # cur_plt.scatter(data[0], data[1], s=0.5, marker='.', c=colors[count % len(colors)])
+            cur_plt.plot(data[0], data[1], c=colors[count % len(colors)], linewidth=0.5)  # s=0.5,
+
         logging.info('Total count of points = %s', count_points)
         plt.pause(0.2)
         count += 1
 
-    # plt.show()
+    plt.show()
     input('Press Enter key to stop...')
     return 0
+
 
 
 class LogisticSerie(object):
