@@ -23,7 +23,7 @@ def main(*args):
     parser.add_argument('-s', '--start', type=float, help='Start value', action='store', dest='start_value',
                         default=0.1)
     parser.add_argument('-e', '--end', type=float, help='End value', action='store', dest='end_value', default=10.0)
-    parser.add_argument('-i', '--interval', type=float, help='Calculation interval', action='store', dest='interval',
+    parser.add_argument('-i', '--precision', type=float, help='Calculation precision', action='store', dest='precision',
                         default=0.1)
 
     params = parser.parse_args(*args)
@@ -82,14 +82,13 @@ def main(*args):
     return 0
 
 
-
 class LogisticSerie(object):
     """
     Numeric logistic serie
     """
     start_value = 0.01
     end_value = 4.0
-    interval = 0.01
+    precision = 0.01
 
     x0_list = list(np.arange(0.1, 1, 0.1))
 
@@ -100,11 +99,11 @@ class LogisticSerie(object):
             self.start_value = kwargs.pop('start_value')
         if 'end_value' in kwargs:
             self.end_value = kwargs.pop('end_value')
-        if 'interval' in kwargs:
-            self.interval = kwargs.pop('interval')
+        if 'precision' in kwargs:
+            self.precision = kwargs.pop('precision')
 
-        logging.debug('LogisticSerie() self.start_value = %s / self.end_value = %s / self.interval = %s',
-                      self.start_value, self.end_value, self.interval)
+        logging.debug('LogisticSerie() self.start_value = %s / self.end_value = %s / self.precision = %s',
+                      self.start_value, self.end_value, self.precision)
 
     @staticmethod
     def generate_serie(k, x0=0.2, count=50):
@@ -115,7 +114,7 @@ class LogisticSerie(object):
             output.append((i, (k, x)))
         return output
 
-    def generate_series(self, x0, start_k=start_value, end_k=end_value, interval=interval):
+    def generate_series(self, x0, start_k=start_value, end_k=end_value, interval=precision):
         output = []
         for k in np.arange(start_k, end_k, interval):
             output.append(self.generate_serie(k, x0))
