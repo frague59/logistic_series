@@ -12,7 +12,9 @@ class LogisticSerie(object):
     """
     start_value = 0.01
     end_value = 4.0
-    precision = 0.01
+    precision = 0.001
+    k_start = 0.001
+    k_end = 4.0
 
     x0_list = list(np.arange(0.1, 1, 0.1))
 
@@ -48,8 +50,15 @@ class LogisticSerie(object):
             output.append((i, (k, x)))
         return output
 
-    def generate_series(self, x0, start_k=start_value, end_k=end_value, interval=precision):
+    def generate_series(self, x0, **kwargs):
+        k_start = kwargs.pop('k_start', self.k_start)
+        k_end = kwargs.pop('k_end', self.k_end)
+        precision = kwargs.pop('precision', self.precision)
+
         output = []
-        for k in np.arange(start_k, end_k, interval):
+        count = 0
+        for k in np.arange(k_start, k_end, precision):
             output.append(self.generate_serie(k, x0))
+            count += 1
+        logging.info(u'LogisticSerie::generate_series() count = %d', count)
         return output
