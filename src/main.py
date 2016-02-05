@@ -29,7 +29,7 @@ def main(*args):
 
     parser.add_argument('-x', type=int, help='Number of plots', dest='x', default=1)
     parser.add_argument('-y', type=int, help='Number of plots', dest='y', default=1)
-    parser.add_argument('-i', '--initial-value', type=float, default=0.5, dest='initial_value')
+    parser.add_argument('-k', '--initial-k', type=float, default=0.5, dest='initial_value')
 
     options = parser.parse_args(*args)
     logging.debug('main() params = %s' % str(options))
